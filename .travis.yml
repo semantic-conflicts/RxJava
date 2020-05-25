@@ -1,20 +1,26 @@
+
+sudo: required
 language: java
+
 jdk:
-- oraclejdk7
-sudo: false
-# as per http://blog.travis-ci.com/2014-12-17-faster-builds-with-container-based-infrastructure/
+  - openjdk8
 
-# script for build and release via Travis to Bintray
-script: gradle/buildViaTravis.sh
+script:
+  - ./gradlew fatJar
 
-# cache between builds
-cache:
-  directories:
-  - $HOME/.m2
-  - $HOME/.gradle
-env:
-  global:
-  - secure: YcLpYfNc/dyDON+oDvnJK5pFNhpPeJHxlAHV8JBt42e51prAl6njqrg1Qlfdp0pvBiskTPQHUxbFy9DOB1Z+43lPj5vlqz6qBgtS3vtBnsrczr+5Xx7NTdVKq6oZGl45VjfNPT7zdM6GQ5ifdzOid6kJIFu34g9JZkCzOY3BWGM=
-  - secure: WVmfSeW1UMNdem7+X4cVDjkEkqdeNavYH4udn3bFN1IFaWdliWFp4FYVBVi+p1T/IgkRSqzoW9Bm43DABe1UMFoErFCbfd7B0Ofgb4NZAsxFgokHGVLCe6k5+rQyASseiO7k0itSj3Kq9TrDueKPhv+g+IG0w1A8yZTnXdhXHvY=
-  - secure: Xt8E09nmSr+5r7ly95hG/EiBitZbhFGPRGp8oqPkNn1A2fzG9+hnvlNLgQhVPsISZGzJwkWa3LGBxAVGmuysVOz7eCwkoqlDZaaSLYAPfWXqkr+cmYGPkErgHSp+n/hnQG4TylX0YxzqX8flr6db21zWyNduiyHmo+xFydI5LeM=
-  - secure: RmpIsmYa5BdLLWR6DILjhEE/dx2q3O0NIkvnMx5G1cyRCNCrOf1B7fYFHnsTDwpvRA+6H6dZinmeyf6D3G+czOG5q/TW2jcu5nh+YOLhBb6jPIqRDfq/WHAa5Lkdssxs5g9RdWlEDVFMoE62lGc4cnfJz5F5puH29dy2SvXxIQw=
+before_deploy:
+    - mkdir MiningBuild
+    - find . -name '*.jar' -exec cp {} ./MiningBuild \;
+    - cd /home/travis/build/semantic-conflicts/RxJava/MiningBuild
+    - tar -zcvf result.tar.gz *
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: result.tar.gz
+  name: fetchjar-a40a4130edcdadc2340da5787ca30353018173f2
+  file_glob: true
+  overwrite: true
+  skip_cleanup: true
+  on:
+    all_branches: true 
+            
